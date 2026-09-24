@@ -12,6 +12,9 @@
 
 ---
 
+> **Forge mirror.** The canonical repository is on [GitHub](https://github.com/HalmSascha/oura-mcp); an identical mirror is kept on [Codeberg](https://codeberg.org/saschahalm/oura-mcp).
+> Issues and pull requests are handled on GitHub and are disabled on the mirror.
+
 Sleep, readiness, activity, workouts, HRV and resting heart rate from your Oura
 Ring, exposed to any MCP client. Runs over stdio for local clients or over
 streamable HTTP behind a shared secret for networked deployment.

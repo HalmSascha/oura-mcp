@@ -7,6 +7,9 @@
 
 ---
 
+> **Spiegel auf zwei Forges.** Das maßgebliche Repository liegt auf [GitHub](https://github.com/HalmSascha/oura-mcp); ein identischer Spiegel liegt auf [Codeberg](https://codeberg.org/saschahalm/oura-mcp).
+> Issues und Pull Requests laufen über GitHub und sind auf dem Spiegel abgeschaltet.
+
 Schlaf, Readiness, Aktivität, Workouts, HRV und Ruhepuls aus dem Oura Ring, für
 beliebige MCP-Clients verfügbar. Läuft per stdio für lokale Clients oder per
 Streamable HTTP hinter einem Shared Secret im Netzbetrieb.
