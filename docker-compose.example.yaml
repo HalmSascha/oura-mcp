@@ -1,0 +1,63 @@
+# Example deployment. Copy to docker-compose.yaml and fill in your values.
+#
+# Before starting, place your authorized tokens.json in ./data:
+#   mkdir -p data
+#   cp /path/to/tokens.json data/
+#   chmod 600 data/tokens.json
+#
+# Generate the shared secret with:
+#   python3 -c "import secrets; print(secrets.token_urlsafe(32))"
+
+name: oura-mcp
+
+services:
+  oura-mcp:
+    image: ghcr.io/halmsascha/oura-mcp:latest
+    container_name: oura-mcp
+    restart: unless-stopped
+    environment:
+      - TZ=Etc/UTC
+
+      # From https://developer.ouraring.com/applications
+      - OURA_CLIENT_ID=your-client-id
+      - OURA_CLIENT_SECRET=your-client-secret
+
+      - OURA_MCP_TRANSPORT=http
+      - OURA_MCP_HOST=0.0.0.0
+      - OURA_MCP_PORT=8000
+
+      # The MCP endpoint has no authentication of its own. Without this token
+      # your health data is readable by anyone who can reach the port, so the
+      # server deliberately refuses to start over HTTP without it.
+      - OURA_MCP_TOKEN=replace-with-a-long-random-string
+
+      # The MCP SDK validates the Host header against DNS rebinding and allows
+      # only localhost by default. List the host:port your clients actually
+      # use, otherwise every request is answered with 421.
+      - OURA_MCP_ALLOWED_HOSTS=localhost:8000,127.0.0.1:8000
+
+      - OURA_TOKEN_STORE=/data/tokens.json
+      - OURA_LOG_LEVEL=INFO
+
+    volumes:
+      # Must be persistent. Oura invalidates the refresh token on every
+      # refresh, so an ephemeral volume would force a manual re-authorization
+      # after each restart.
+      - ./data:/data
+
+    ports:
+      # Bound to localhost by default. Change to a LAN address only if you
+      # understand that the shared secret is the only thing protecting it.
+      - "127.0.0.1:8000:8000"
+
+    mem_limit: 512m
+
+    healthcheck:
+      # /healthz answers without a token so this check does not need the
+      # secret. 127.0.0.1 rather than localhost on purpose: inside the
+      # container localhost may resolve to ::1 first, while uvicorn binds IPv4.
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=8)\""]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
